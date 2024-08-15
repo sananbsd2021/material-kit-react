@@ -1,10 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-
+import axios from 'axios';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Drawer from '@mui/material/Drawer';
-import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import { alpha } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
@@ -15,27 +14,31 @@ import { RouterLink } from 'src/routes/components';
 
 import { useResponsive } from 'src/hooks/use-responsive';
 
-import { account } from 'src/_mock/account';
-
 import Logo from 'src/components/logo';
 import Scrollbar from 'src/components/scrollbar';
 
 import { NAV } from './config-layout';
 import navConfig from './config-navigation';
-
-// ----------------------------------------------------------------------
+import PersonIcon from '@mui/icons-material/Person';
 
 export default function Nav({ openNav, onCloseNav }) {
+  const [data, setData] = useState({});
   const pathname = usePathname();
-
   const upLg = useResponsive('up', 'lg');
 
   useEffect(() => {
     if (openNav) {
       onCloseNav();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
+
+  const storedUser = localStorage.getItem('user');
+  let user = {};
+  try {
+    user = JSON.parse(storedUser);
+  } catch (error) {
+    console.error('Error parsing JSON:', error);
+  }
 
   const renderAccount = (
     <Box
@@ -50,13 +53,13 @@ export default function Nav({ openNav, onCloseNav }) {
         bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
       }}
     >
-      <Avatar src={account.photoURL} alt="photoURL" />
-
+      <Avatar src="/assets/images/avatars/avatar_1.jpg" alt="photoURL" />
       <Box sx={{ ml: 2 }}>
-        <Typography variant="subtitle2">{account.displayName}</Typography>
-
+        <Typography variant="subtitle2">
+          {user?.first_name} {user?.last_name}
+        </Typography>
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {account.role}
+          {user?.role?.name}
         </Typography>
       </Box>
     </Box>
@@ -68,35 +71,6 @@ export default function Nav({ openNav, onCloseNav }) {
         <NavItem key={item.title} item={item} />
       ))}
     </Stack>
-  );
-
-  const renderUpgrade = (
-    <Box sx={{ px: 2.5, pb: 3, mt: 10 }}>
-      <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
-        <Box
-          component="img"
-          src="/assets/illustrations/illustration_avatar.png"
-          sx={{ width: 100, position: 'absolute', top: -50 }}
-        />
-
-        <Box sx={{ textAlign: 'center' }}>
-          <Typography variant="h6">Get more?</Typography>
-
-          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1 }}>
-            From only $69
-          </Typography>
-        </Box>
-
-        <Button
-          href="https://material-ui.com/store/items/minimal-dashboard/"
-          target="_blank"
-          variant="contained"
-          color="inherit"
-        >
-          Upgrade to Pro
-        </Button>
-      </Stack>
-    </Box>
   );
 
   const renderContent = (
@@ -111,14 +85,9 @@ export default function Nav({ openNav, onCloseNav }) {
       }}
     >
       <Logo sx={{ mt: 3, ml: 4 }} />
-
       {renderAccount}
-
       {renderMenu}
-
       <Box sx={{ flexGrow: 1 }} />
-
-      {renderUpgrade}
     </Scrollbar>
   );
 
@@ -162,11 +131,9 @@ Nav.propTypes = {
   onCloseNav: PropTypes.func,
 };
 
-// ----------------------------------------------------------------------
-
+// NavItem component
 function NavItem({ item }) {
   const pathname = usePathname();
-
   const active = item.path === pathname;
 
   return (
@@ -193,7 +160,6 @@ function NavItem({ item }) {
       <Box component="span" sx={{ width: 24, height: 24, mr: 2 }}>
         {item.icon}
       </Box>
-
       <Box component="span">{item.title} </Box>
     </ListItemButton>
   );

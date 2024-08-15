@@ -1,41 +1,46 @@
-import SvgColor from 'src/components/svg-color';
+import DevicesIcon from '@mui/icons-material/Devices';
+import DonutSmallIcon from '@mui/icons-material/DonutSmall';
+import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
+/* eslint-disable */
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+/* eslint-disable */
+// import SvgColor from 'src/components/svg-color';
 
-// ----------------------------------------------------------------------
-
-const icon = (name) => (
-  <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />
-);
+// const icon = (name) => (
+//   <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />
+// );
 
 const navConfig = [
   {
-    title: 'dashboard',
+    title: 'Boshqaruv paneli',
     path: '/',
-    icon: icon('ic_analytics'),
+    icon: <DonutSmallIcon />,
   },
   {
-    title: 'user',
-    path: '/user',
-    icon: icon('ic_user'),
+    title: 'Hisobot',
+    path: '/report',
+    icon: <DashboardCustomizeIcon />,
   },
   {
-    title: 'product',
-    path: '/products',
-    icon: icon('ic_cart'),
+    title: 'Qurilma faoliyati',
+    path: '/devices-activity',
+    icon: <DevicesIcon />,
   },
   {
-    title: 'blog',
-    path: '/blog',
-    icon: icon('ic_blog'),
+    title: 'Moliya',
+    path: '/financing',
+    icon: <AttachMoneyIcon />,
   },
+  // {
+  //   title: 'login',
+  //   path: '/login',
+  //   icon: icon('ic_lock'),
+  // },
   {
-    title: 'login',
-    path: '/login',
-    icon: icon('ic_lock'),
-  },
-  {
-    title: 'Not found',
+    title: "Bo'sh",
     path: '/404',
-    icon: icon('ic_disabled'),
+    icon: <CheckBoxOutlineBlankIcon />,
   },
 ];
 

@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
+
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
+
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
@@ -13,35 +12,69 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { alpha, useTheme } from '@mui/material/styles';
 import InputAdornment from '@mui/material/InputAdornment';
 
-import { useRouter } from 'src/routes/hooks';
-
 import { bgGradient } from 'src/theme/css';
 
 import Logo from 'src/components/logo';
 import Iconify from 'src/components/iconify';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-// ----------------------------------------------------------------------
+import { useAuth } from 'src/routes/context/auth-context';
 
 export default function LoginView() {
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(''); // Xato holatini qo'shamiz
   const theme = useTheme();
 
-  const router = useRouter();
-
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleClick = () => {
-    router.push('/dashboard');
+  const handleClick = async (e) => {
+    e.preventDefault();
+    setError(''); 
+    try {
+      const response = await axios.post(
+        'https://api.2pay.uz/api/users/login/',
+        {
+          phone_number: phone,
+          password: password,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      localStorage.setItem('id', response.data.id);
+      console.log(response.data.id);
+      login(response.data.token);
+      navigate('/', { replace: true });
+     ;
+    } catch (error) {
+      console.log(error);
+      setError("Telefon raqami yoki parol noto'g'ri. Iltimos, qayta urinib ko'ring."); // Xato holatini yangilaymiz
+    }
   };
 
   const renderForm = (
     <>
       <Stack spacing={3}>
-        <TextField name="email" label="Email address" />
-
         <TextField
+          name="phone"
+          label="Telefon raqami"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          error={!!error} // Xato holati bo'lsa qizil qilib ko'rsatish
+        />
+        <TextField
+          onChange={(e) => setPassword(e.target.value)}
+          value={password}
           name="password"
-          label="Password"
+          label="Parol"
           type={showPassword ? 'text' : 'password'}
+          error={!!error} 
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -52,23 +85,19 @@ export default function LoginView() {
             ),
           }}
         />
-      </Stack>
-
-      <Stack direction="row" alignItems="center" justifyContent="flex-end" sx={{ my: 3 }}>
-        <Link variant="subtitle2" underline="hover">
-          Forgot password?
-        </Link>
+        {error && <Typography color="error">{error}</Typography>} {/* Xato xabarini ko'rsatish */}
       </Stack>
 
       <LoadingButton
+        style={{ marginTop: 20 }}
         fullWidth
         size="large"
         type="submit"
         variant="contained"
-        color="inherit"
+        color="primary"
         onClick={handleClick}
       >
-        Login
+        Kirish
       </LoadingButton>
     </>
   );
@@ -83,14 +112,6 @@ export default function LoginView() {
         height: 1,
       }}
     >
-      <Logo
-        sx={{
-          position: 'fixed',
-          top: { xs: 16, md: 24 },
-          left: { xs: 16, md: 24 },
-        }}
-      />
-
       <Stack alignItems="center" justifyContent="center" sx={{ height: 1 }}>
         <Card
           sx={{
@@ -99,52 +120,12 @@ export default function LoginView() {
             maxWidth: 420,
           }}
         >
-          <Typography variant="h4">Sign in to Minimal</Typography>
-
-          <Typography variant="body2" sx={{ mt: 2, mb: 5 }}>
-            Don’t have an account?
-            <Link variant="subtitle2" sx={{ ml: 0.5 }}>
-              Get started
-            </Link>
-          </Typography>
-
-          <Stack direction="row" spacing={2}>
-            <Button
-              fullWidth
-              size="large"
-              color="inherit"
-              variant="outlined"
-              sx={{ borderColor: alpha(theme.palette.grey[500], 0.16) }}
-            >
-              <Iconify icon="eva:google-fill" color="#DF3E30" />
-            </Button>
-
-            <Button
-              fullWidth
-              size="large"
-              color="inherit"
-              variant="outlined"
-              sx={{ borderColor: alpha(theme.palette.grey[500], 0.16) }}
-            >
-              <Iconify icon="eva:facebook-fill" color="#1877F2" />
-            </Button>
-
-            <Button
-              fullWidth
-              size="large"
-              color="inherit"
-              variant="outlined"
-              sx={{ borderColor: alpha(theme.palette.grey[500], 0.16) }}
-            >
-              <Iconify icon="eva:twitter-fill" color="#1C9CEA" />
-            </Button>
-          </Stack>
-
-          <Divider sx={{ my: 3 }}>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              OR
+          <Box display="flex" alignItems="center">
+            <Logo />
+            <Typography variant="h4" sx={{ ml: 1, paddingTop: 1.5 }}>
+              merchant.2pay.uz
             </Typography>
-          </Divider>
+          </Box>
 
           {renderForm}
         </Card>

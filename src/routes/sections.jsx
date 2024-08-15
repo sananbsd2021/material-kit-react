@@ -2,36 +2,46 @@ import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
 import DashboardLayout from 'src/layouts/dashboard';
+import ProtectedRoute from './context/protected-route';
+import { AuthProvider } from './context/auth-context';
 
 export const IndexPage = lazy(() => import('src/pages/app'));
-export const BlogPage = lazy(() => import('src/pages/blog'));
-export const UserPage = lazy(() => import('src/pages/user'));
+export const FinancingPage = lazy(() => import('src/pages/financing'));
+export const ReportPage = lazy(() => import('src/pages/report'));
 export const LoginPage = lazy(() => import('src/pages/login'));
-export const ProductsPage = lazy(() => import('src/pages/products'));
+export const DevicesActivityPage = lazy(() => import('src/pages/devices-activity'));
+export const DevicesDetailPage = lazy(() => import('src/pages/devices-detail'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
-
+export const SelectCompanyPage = lazy(() => import('src/pages/select-company'));
 // ----------------------------------------------------------------------
 
 export default function Router() {
   const routes = useRoutes([
     {
       element: (
-        <DashboardLayout>
-          <Suspense>
-            <Outlet />
-          </Suspense>
-        </DashboardLayout>
+        <ProtectedRoute>
+          <DashboardLayout>
+            <Suspense>
+              <Outlet />
+            </Suspense>
+          </DashboardLayout>
+        </ProtectedRoute>
       ),
       children: [
         { element: <IndexPage />, index: true },
-        { path: 'user', element: <UserPage /> },
-        { path: 'products', element: <ProductsPage /> },
-        { path: 'blog', element: <BlogPage /> },
+        { path: 'report', element: <ReportPage /> },
+        { path: 'devices-activity', element: <DevicesActivityPage /> },
+        { path: 'financing', element: <FinancingPage /> },
+        { path: 'financing/filial/:id', element: <DevicesDetailPage /> },
       ],
     },
     {
       path: 'login',
       element: <LoginPage />,
+    },
+    {
+      path: 'select-company-role',
+      element: <SelectCompanyPage />,
     },
     {
       path: '404',
@@ -43,5 +53,9 @@ export default function Router() {
     },
   ]);
 
-  return routes;
+  return (
+    <AuthProvider>
+      <Suspense fallback={<div>Loading...</div>}>{routes}</Suspense>
+    </AuthProvider>
+  );
 }
